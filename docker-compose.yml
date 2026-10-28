@@ -1,0 +1,63 @@
+# ==============================================================================
+# Husqvarna AI Query Assistant - Multi-Container Docker Compose Stack
+# ==============================================================================
+# Orchestrates the backend Node.js API service and the frontend React/Nginx client
+# Environment configuration is loaded from config/.env.app
+#
+# Usage:
+#   docker compose up --build
+#   docker compose down
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # Backend API Service (Node.js 22 / Express / TypeScript / Gemini)
+  # ----------------------------------------------------------------------------
+  server:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.server
+    container_name: husqvarna-backend
+    restart: unless-stopped
+    env_file:
+      - config/.env.app
+    environment:
+      - PORT=5001
+      - NODE_ENV=production
+    ports:
+      - "5001:5001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - husqvarna-network
+
+  # ----------------------------------------------------------------------------
+  # Frontend Web Client (React 18 / Vite / Nginx Reverse Proxy)
+  # ----------------------------------------------------------------------------
+  client:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.client
+    container_name: husqvarna-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - husqvarna-network
+
+# ------------------------------------------------------------------------------
+# Isolated Internal Bridge Network
+# ------------------------------------------------------------------------------
+networks:
+  husqvarna-network:
+    driver: bridge
+    name: husqvarna-network

@@ -1,0 +1,57 @@
+# ==============================================================================
+# Husqvarna AI Query Assistant - Backend Server Dockerfile
+# Multi-stage production container build (Non-root, Alpine Linux, Node.js 22)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Stage 1: Build & TypeScript Compilation
+# ------------------------------------------------------------------------------
+FROM node:22-alpine AS builder
+
+WORKDIR /usr/src/app
+
+# Copy dependency manifests for optimal Docker layer caching
+COPY server/package*.json ./
+RUN npm ci
+
+# Copy TypeScript configuration and source code
+COPY server/tsconfig.json ./
+COPY server/src/ ./src/
+
+# Compile TypeScript to JavaScript (dist directory)
+RUN npm run build
+
+# Remove development dependencies for lean production footprint
+RUN npm prune --production
+
+# ------------------------------------------------------------------------------
+# Stage 2: Minimal Production Runtime Container
+# ------------------------------------------------------------------------------
+FROM node:22-alpine AS runner
+
+WORKDIR /usr/src/app
+
+# Production defaults
+ENV NODE_ENV=production
+ENV PORT=5001
+
+# Install curl for container health check probes
+RUN apk --no-cache add curl
+
+# Copy production artifacts with non-root ownership
+COPY --chown=node:node --from=builder /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=builder /usr/src/app/dist ./dist
+COPY --chown=node:node --from=builder /usr/src/app/package*.json ./
+
+# Enforce least-privilege non-root execution
+USER node
+
+# Expose backend API port
+EXPOSE 5001
+
+# Container health probe
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:5001/api/health || exit 1
+
+# Start production server
+CMD ["node", "dist/index.js"]

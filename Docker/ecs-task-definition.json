@@ -1,0 +1,57 @@
+{
+  "family": "husqvarna-backend-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::123456789012:role/husqvarna-ecs-execution-role",
+  "taskRoleArn": "arn:aws:iam::123456789012:role/husqvarna-ecs-task-role",
+  "containerDefinitions": [
+    {
+      "name": "backend",
+      "image": "123456789012.dkr.ecr.ap-south-1.amazonaws.com/husqvarna-backend:latest",
+      "essential": true,
+      "user": "node",
+      "readonlyRootFilesystem": false,
+      "portMappings": [
+        {
+          "containerPort": 5001,
+          "hostPort": 5001,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "PORT", "value": "5001" },
+        { "name": "GEMINI_MODEL", "value": "gemini-2.5-flash" },
+        { "name": "LLM_PROVIDER", "value": "gemini" },
+        { "name": "LLM_TIMEOUT_MS", "value": "15000" }
+      ],
+      "secrets": [
+        {
+          "name": "GEMINI_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:123456789012:secret:husqvarna/gemini_key:GEMINI_API_KEY::"
+        },
+        {
+          "name": "JWT_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:123456789012:secret:husqvarna/jwt_secret:JWT_SECRET::"
+        }
+      ],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "curl -f http://localhost:5001/api/health || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 10
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/husqvarna-backend",
+          "awslogs-region": "ap-south-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

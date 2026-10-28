@@ -1,0 +1,21 @@
+# ==============================================================================
+# Docker Build Context Exclusions
+# ==============================================================================
+.git
+.gitignore
+.agents
+*.log
+npm-debug.log*
+.DS_Store
+
+# Dependencies and artifacts
+node_modules
+client/node_modules
+server/node_modules
+client/dist
+server/dist
+
+# Environment local overrides (exclude secrets from image build context)
+.env
+.env.*
+config/.env.app
