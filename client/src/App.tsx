@@ -5,15 +5,16 @@ import { QueryInput } from './components/QueryInput.tsx';
 import { ResponseDisplay } from './components/ResponseDisplay.tsx';
 import { AuthModal } from './components/AuthModal.tsx';
 import { ErrorAlert } from './components/ErrorAlert.tsx';
-import { ApiService, tokenStorage } from './services/api.ts';
-import { HealthStatus, QueryResponseData } from './types/index.ts';
+import { ApiService, tokenStorage, chatStorage } from './services/api.ts';
+import { HealthStatus, ChatMessage } from './types/index.ts';
 
 export const App: React.FC = () => {
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [hasToken, setHasToken] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [response, setResponse] = useState<QueryResponseData | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => chatStorage.get());
+  const [hasPreviousChat, setHasPreviousChat] = useState<boolean>(() => Boolean(chatStorage.getPrevious()?.length));
   const [error, setError] = useState<{
     message: string;
     code?: string;
@@ -51,13 +52,38 @@ export const App: React.FC = () => {
       });
   }, [syncTokenState]);
 
+  // Handle submitting a query
   const handleQuerySubmit = async (queryText: string) => {
     setIsLoading(true);
     setError(null);
 
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: queryText,
+      timestamp: new Date().toISOString(),
+    };
+
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    chatStorage.set(updatedMessages);
+
     try {
       const result = await ApiService.sendQuery(queryText);
-      setResponse(result);
+      const assistantMessage: ChatMessage = {
+        id: `ai-${Date.now()}`,
+        role: 'assistant',
+        content: result.response,
+        timestamp: result.timestamp,
+        model: result.model,
+        provider: result.provider,
+        latencyMs: result.latencyMs,
+        usage: result.usage,
+      };
+
+      const finalMessages = [...updatedMessages, assistantMessage];
+      setMessages(finalMessages);
+      chatStorage.set(finalMessages);
     } catch (err: unknown) {
       const errorObj = err as {
         message: string;
@@ -77,12 +103,38 @@ export const App: React.FC = () => {
     }
   };
 
+  // Start a new chat (archives the current session locally as single chat history)
+  const handleNewChat = () => {
+    if (messages.length > 0) {
+      chatStorage.archiveCurrent();
+      setHasPreviousChat(true);
+    }
+    setMessages([]);
+    setError(null);
+  };
+
+  // Restore the single previous chat session
+  const handleRestorePrevious = () => {
+    const prev = chatStorage.getPrevious();
+    if (prev && prev.length > 0) {
+      if (messages.length > 0) {
+        chatStorage.archiveCurrent();
+      }
+      setMessages(prev);
+      chatStorage.set(prev);
+    }
+  };
+
   return (
     <div className="app-container">
       <Header
         health={health}
         hasToken={hasToken}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onNewChat={handleNewChat}
+        hasMessages={messages.length > 0}
+        onRestorePrevious={handleRestorePrevious}
+        hasPreviousChat={hasPreviousChat}
       />
 
       <ErrorAlert
@@ -91,16 +143,23 @@ export const App: React.FC = () => {
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
 
-      <main className="main-content">
-        <QueryInput
-          onSubmit={handleQuerySubmit}
-          isLoading={isLoading}
-        />
+      <main className="main-content chat-main-layout">
+        {/* Scrollable Conversation Stream */}
+        <section className="chat-scroll-area">
+          <ResponseDisplay
+            messages={messages}
+            isLoading={isLoading}
+            onSampleClick={handleQuerySubmit}
+          />
+        </section>
 
-        <ResponseDisplay
-          data={response}
-          isLoading={isLoading}
-        />
+        {/* Docked Sticky Chat Bar */}
+        <footer className="chat-docked-bottom">
+          <QueryInput
+            onSubmit={handleQuerySubmit}
+            isLoading={isLoading}
+          />
+        </footer>
       </main>
 
       <AuthModal
@@ -113,3 +172,4 @@ export const App: React.FC = () => {
 };
 
 export default App;
+

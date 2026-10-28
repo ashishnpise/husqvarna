@@ -6,11 +6,9 @@ interface QueryInputProps {
   isLoading: boolean;
 }
 
-const SAMPLE_PROMPTS = [
+export const SAMPLE_PROMPTS = [
   'How does Husqvarna Automower EPOS satellite navigation work?',
   'Explain Husqvarna Fleet Services IoT cloud telemetry pipeline',
-  'Architectural considerations for containerized GIS microservices',
-  'What are the key security practices for JWT-protected LLM APIs?',
 ];
 
 export const QueryInput: React.FC<QueryInputProps> = ({ onSubmit, isLoading }) => {
@@ -27,36 +25,56 @@ export const QueryInput: React.FC<QueryInputProps> = ({ onSubmit, isLoading }) =
     const trimmed = query.trim();
     if (!trimmed || isLoading) return;
 
+    setQuery('');
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+
     await onSubmit(trimmed);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Ctrl+Enter or Cmd+Enter to submit
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    // Send on Enter (unless Shift is pressed for multiline)
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
     }
   };
 
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setQuery(e.target.value);
+    // Auto-adjust height up to a max
+    const target = e.target;
+    target.style.height = 'auto';
+    target.style.height = `${Math.min(target.scrollHeight, 180)}px`;
+  };
+
   const handleSampleClick = (prompt: string) => {
     setQuery(prompt);
-    textareaRef.current?.focus();
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 180)}px`;
+    }
   };
 
   const handleClear = () => {
     setQuery('');
-    textareaRef.current?.focus();
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.focus();
+    }
   };
 
   const charCount = query.length;
   const isTooLong = charCount > 2000;
 
   return (
-    <div className="query-input-section">
-      {/* Sample Prompt Pills */}
-      <div className="sample-prompts-container">
+    <div className="query-input-section sticky-chat-bar" role="region" aria-label="Chat input area">
+      {/* 2 Quick Inquiries Pills */}
+      <div className="sample-prompts-container" aria-label="Suggested inquiries">
         <span className="sample-prompts-title">
-          <Sparkles size={14} className="text-accent" />
+          <Sparkles size={13} className="text-accent" />
           <span>Quick Inquiries:</span>
         </span>
         <div className="sample-prompts-list">
@@ -67,6 +85,7 @@ export const QueryInput: React.FC<QueryInputProps> = ({ onSubmit, isLoading }) =
               className="sample-prompt-pill"
               onClick={() => handleSampleClick(prompt)}
               disabled={isLoading}
+              title={`Click to fill: "${prompt}"`}
             >
               {prompt}
             </button>
@@ -75,29 +94,30 @@ export const QueryInput: React.FC<QueryInputProps> = ({ onSubmit, isLoading }) =
       </div>
 
       {/* Main Query Form */}
-      <form onSubmit={handleSubmit} className="query-form">
+      <form onSubmit={handleSubmit} className="query-form" aria-label="Send message form">
         <div className="query-box-wrapper">
           <textarea
             ref={textareaRef}
             id="query-input-field"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            placeholder="Ask a question or enter a query (e.g. Husqvarna robotics, cloud telemetry, architecture)..."
-            rows={4}
+            placeholder="Ask anything about Husqvarna robotics, IoT telemetry, GIS architecture..."
+            rows={2}
             disabled={isLoading}
             className={`query-textarea ${isTooLong ? 'input-error' : ''}`}
             maxLength={2200}
+            aria-label="Ask a question or enter a query"
           />
 
           <div className="query-box-footer">
             <div className="query-meta-hints">
               <span className={`char-counter ${isTooLong ? 'text-danger font-bold' : 'text-muted'}`}>
-                {charCount} / 2000 characters
+                {charCount} / 2000
               </span>
-              <span className="keyboard-hint">
+              <span className="keyboard-hint" title="Press Enter to send, Shift+Enter for new line">
                 <CornerDownLeft size={12} />
-                <span>Ctrl + Enter to send</span>
+                <span>Enter to send • Shift+Enter for new line</span>
               </span>
             </div>
 
@@ -109,6 +129,7 @@ export const QueryInput: React.FC<QueryInputProps> = ({ onSubmit, isLoading }) =
                   onClick={handleClear}
                   disabled={isLoading}
                   title="Clear input"
+                  aria-label="Clear input text"
                 >
                   <Eraser size={16} />
                 </button>
@@ -119,16 +140,17 @@ export const QueryInput: React.FC<QueryInputProps> = ({ onSubmit, isLoading }) =
                 id="btn-submit-query"
                 disabled={isLoading || !query.trim() || isTooLong}
                 className="btn-submit"
+                aria-label="Send query"
               >
                 {isLoading ? (
                   <>
                     <Loader2 size={16} className="animate-spin" />
-                    <span>Processing Query...</span>
+                    <span>Sending...</span>
                   </>
                 ) : (
                   <>
-                    <Send size={16} />
-                    <span>Send Query</span>
+                    <Send size={15} />
+                    <span>Send</span>
                   </>
                 )}
               </button>
@@ -139,3 +161,4 @@ export const QueryInput: React.FC<QueryInputProps> = ({ onSubmit, isLoading }) =
     </div>
   );
 };
+

@@ -1,14 +1,27 @@
 import React from 'react';
-import { ShieldCheck, ShieldAlert, Cpu, Sparkles, Activity } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Cpu, Sparkles, Activity, Plus, RotateCcw } from 'lucide-react';
 import { HealthStatus } from '../types/index.ts';
 
 interface HeaderProps {
   health: HealthStatus | null;
   hasToken: boolean;
   onOpenAuthModal: () => void;
+  onNewChat?: () => void;
+  hasMessages?: boolean;
+  onRestorePrevious?: () => void;
+  hasPreviousChat?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ health, hasToken, onOpenAuthModal }) => {
+export const Header: React.FC<HeaderProps> = ({
+  health,
+  hasToken,
+  onOpenAuthModal,
+  onNewChat,
+  hasMessages,
+  onRestorePrevious,
+  hasPreviousChat,
+}) => {
+
   return (
     <header className="app-header">
       <div className="header-brand">
@@ -57,6 +70,33 @@ export const Header: React.FC<HeaderProps> = ({ health, hasToken, onOpenAuthModa
             </>
           )}
         </div>
+
+        {/* New Chat Button */}
+        <button
+          type="button"
+          id="btn-new-chat"
+          className="btn-new-chat"
+          onClick={onNewChat}
+          title={hasMessages ? "Start a new chat session (archives current conversation locally)" : "Start a fresh chat"}
+        >
+          <Plus size={15} />
+          <span>New Chat</span>
+          {hasMessages && <span className="active-dot" title="Active conversation" />}
+        </button>
+
+        {/* Restore Single Saved Previous Chat (if available) */}
+        {hasPreviousChat && onRestorePrevious && (
+          <button
+            type="button"
+            id="btn-restore-chat"
+            className="btn-restore-chat"
+            onClick={onRestorePrevious}
+            title="Restore your previous chat session"
+          >
+            <RotateCcw size={13} />
+            <span>Restore Last Chat</span>
+          </button>
+        )}
 
         {/* JWT Auth Button & Status */}
         <button

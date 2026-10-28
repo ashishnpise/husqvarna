@@ -6,7 +6,7 @@
 #   docker compose down
 # ==============================================================================
 
-version: '3.8'
+name: husqvarna
 
 services:
   # ----------------------------------------------------------------------------
@@ -26,11 +26,11 @@ services:
     ports:
       - "5001:5001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/api/health"]
-      interval: 30s
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:5001/api/health || exit 1"]
+      interval: 10s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 15s
     networks:
       - husqvarna-network
 

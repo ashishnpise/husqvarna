@@ -4,7 +4,7 @@ import { llmService } from './services/llm.service.js';
 
 const app = createApp();
 
-const server = app.listen(env.PORT, () => {
+const server = app.listen(env.PORT, '0.0.0.0', () => {
   const providerInfo = llmService.getProviderStatus();
 
   console.log(`

@@ -79,9 +79,7 @@ husqvarna/
 │   ├── Dockerfile.client                 # Multi-stage container build for React/Vite + Nginx
 │   ├── nginx.conf                        # Production Nginx reverse proxy & SPA configuration
 │   ├── ecs-task-definition.json          # AWS ECS Fargate task definition specification
-│   └── docker-compose.yml                # Docker Compose stack (executable from Docker/)
-│
-├── docker-compose.yml                    # Root Docker Compose orchestrator
+│   └── docker-compose.yml                # Multi-container Docker Compose orchestrator
 │
 ├── client/                               # Frontend React Application
 │   ├── index.html                        # HTML5 document with Outfit/Inter typography
@@ -233,11 +231,12 @@ The application provides a unified multi-container stack orchestrated via Docker
 From the project root:
 ```bash
 # Build and run backend and frontend containers
-docker compose up --build
+docker compose -f Docker/docker-compose.yml up --build
 
 # Stop the stack
-docker compose down
+docker compose -f Docker/docker-compose.yml down
 ```
+*(Alternatively, navigate to `cd Docker` and run `docker compose up --build`)*
 - **Backend API**: Accessible at `http://localhost:5001` with container health checks (`/api/health`).
 - **Frontend Client**: Accessible at `http://localhost:3000` served via high-performance Nginx with built-in API reverse proxy.
 

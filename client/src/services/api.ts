@@ -1,6 +1,8 @@
-import { ApiResponse, HealthStatus, QueryResponseData, TokenResponse } from '../types/index.ts';
+import { ApiResponse, ChatMessage, HealthStatus, QueryResponseData, TokenResponse } from '../types/index.ts';
 
 const TOKEN_STORAGE_KEY = 'husqvarna_jwt_token';
+const CHAT_STORAGE_KEY = 'husqvarna_chat_history';
+const PREVIOUS_CHAT_STORAGE_KEY = 'husqvarna_previous_chat';
 
 export const tokenStorage = {
   get(): string | null {
@@ -13,6 +15,51 @@ export const tokenStorage = {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
   },
 };
+
+export const chatStorage = {
+  get(): ChatMessage[] {
+    try {
+      const data = localStorage.getItem(CHAT_STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  },
+  set(messages: ChatMessage[]): void {
+    try {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+    } catch (e) {
+      console.warn('Failed to save chat to localStorage', e);
+    }
+  },
+  getPrevious(): ChatMessage[] | null {
+    try {
+      const data = localStorage.getItem(PREVIOUS_CHAT_STORAGE_KEY);
+      return data ? JSON.parse(data) : null;
+    } catch {
+      return null;
+    }
+  },
+  archiveCurrent(): void {
+    try {
+      const current = localStorage.getItem(CHAT_STORAGE_KEY);
+      if (current && JSON.parse(current).length > 0) {
+        localStorage.setItem(PREVIOUS_CHAT_STORAGE_KEY, current);
+      }
+      localStorage.removeItem(CHAT_STORAGE_KEY);
+    } catch (e) {
+      console.warn('Failed to archive chat', e);
+    }
+  },
+  clear(): void {
+    localStorage.removeItem(CHAT_STORAGE_KEY);
+  },
+  clearAll(): void {
+    localStorage.removeItem(CHAT_STORAGE_KEY);
+    localStorage.removeItem(PREVIOUS_CHAT_STORAGE_KEY);
+  },
+};
+
 
 export class ApiService {
   private static async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {

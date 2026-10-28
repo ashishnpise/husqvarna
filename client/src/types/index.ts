@@ -53,3 +53,15 @@ export interface QueryHistoryItem {
   latencyMs: number;
   timestamp: string;
 }
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  model?: string;
+  provider?: string;
+  latencyMs?: number;
+  usage?: QueryUsage;
+}
+
