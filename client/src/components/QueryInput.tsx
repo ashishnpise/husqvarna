@@ -7,8 +7,8 @@ interface QueryInputProps {
 }
 
 export const SAMPLE_PROMPTS = [
-  'How does Husqvarna Automower EPOS satellite navigation work?',
-  'Explain Husqvarna Fleet Services IoT cloud telemetry pipeline',
+  'Compare Husqvarna Svartpilen 401 and Vitpilen 250 features',
+  'How does Husqvarna Group GIS India architect its AWS ECS cloud services?',
 ];
 
 export const QueryInput: React.FC<QueryInputProps> = ({ onSubmit, isLoading }) => {
@@ -102,7 +102,7 @@ export const QueryInput: React.FC<QueryInputProps> = ({ onSubmit, isLoading }) =
             value={query}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            placeholder="Ask anything about Husqvarna robotics, IoT telemetry, GIS architecture..."
+            placeholder="Ask about Husqvarna Svartpilen 401, Vitpilen 250, Swedish heritage, or GIS cloud architecture..."
             rows={2}
             disabled={isLoading}
             className={`query-textarea ${isTooLong ? 'input-error' : ''}`}

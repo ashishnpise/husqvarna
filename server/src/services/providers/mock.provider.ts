@@ -1,4 +1,8 @@
 import { env } from '../../config/env.js';
+import {
+  HUSQVARNA_OFF_TOPIC_RESPONSE,
+  isHusqvarnaRelatedQuery,
+} from '../../config/husqvarna-knowledge.js';
 import { AppError } from '../../middleware/error.middleware.js';
 import { ILLMProvider, LLMRequestOptions, LLMResponseData } from './provider.interface.js';
 
@@ -26,44 +30,98 @@ export class MockProvider implements ILLMProvider {
     const queryLower = options.query.toLowerCase();
     let answerText = '';
 
-    if (queryLower.includes('automower') || queryLower.includes('epos') || queryLower.includes('gps')) {
-      answerText = `### Husqvarna Automower® & EPOS™ Satellite Navigation
+    // Guardrail: Reject off-topic / unnecessary queries
+    if (!isHusqvarnaRelatedQuery(options.query)) {
+      answerText = HUSQVARNA_OFF_TOPIC_RESPONSE;
+    } else if (
+      queryLower.includes('svartpilen') ||
+      queryLower.includes('vitpilen') ||
+      queryLower.includes('401') ||
+      queryLower.includes('250') ||
+      queryLower.includes('model') ||
+      queryLower.includes('feature') ||
+      queryLower.includes('difference')
+    ) {
+      answerText = `### Husqvarna Motorcycles India: Svartpilen 401 vs. Vitpilen 250
 
-Husqvarna Automower® utilizing **EPOS™ (Exact Positioning Operating System)** is a breakthrough in robotic lawn care:
+Fashioned in the footsteps of their iconic 1955 predecessor—the classic **Silverpilen**—Husqvarna Motorcycles offers two versatile siblings in India:
 
-1. **Virtual Boundaries**: Rather than relying on physical perimeter wires buried in turf, EPOS uses high-precision RTK-GNSS (Real-Time Kinematic Global Navigation Satellite System) satellite navigation with accuracy down to **2–3 centimeters**.
-2. **Reference Station**: A localized reference station communicates differential corrections via high-frequency radio or cellular IoT to the mower in real-time.
-3. **Systematic Wire-Free Mowing**: Enables customizable work areas, stay-out zones (e.g., flowerbeds, patios), and variable cutting heights programmed entirely via mobile and cloud APIs.
-4. **IoT Telemetry**: Continuously streams operational health, tilt sensors, battery thermals, and GPS tracking to Husqvarna Fleet Services cloud infrastructure.`;
-    } else if (queryLower.includes('fleet') || queryLower.includes('iot') || queryLower.includes('cloud')) {
-      answerText = `### Husqvarna Fleet Services & Cloud Edge Architecture
+#### 1. Svartpilen 401 ("Escape The Ordinary")
+- **Category & Styling**: Dynamic urban explorer inspired by authentic scrambler heritage. Dark, rugged, and purposeful stance.
+- **Riding Ergonomics**: Upright, commanding handlebar position designed for both dense metropolitan traffic and unpredictable terrain.
+- **Key Details**: Rugged spoked wheels, dual-purpose tires, high ground clearance, signature round LED headlight with integrated daytime running light (DRL) ring.
+- **Spirit**: Where raw urban street style seamlessly converges with off-road adventure roots.
 
-Husqvarna Fleet Services delivers centralized management for enterprise landscaping operations:
+#### 2. Vitpilen 250 ("Disrupt The Ordinary")
+- **Category & Styling**: Dynamic urban roadster embodying Scandinavian brutal simplicity and progressive neo-retro café roadster aesthetics.
+- **Riding Ergonomics**: Athletic, forward-biased clip-on roadster posture designed for laser-sharp apex handling and high agility.
+- **Key Details**: Crisp white-and-silver bodywork, lightweight cast alloy wheels, clean aerodynamic contours, and ultra-responsive single-cylinder powerplant.
+- **Spirit**: The Swedish "White Arrow" built for precision cornering and effortless exploration through city corridors.
 
-- **Edge Connectivity**: Commercial machinery equipped with embedded Bluetooth LE and LTE-M/NB-IoT modules publish sensor diagnostics.
-- **Cloud Ingestion Pipeline**: Telemetry arrives through high-throughput MQTT/HTTPS gateways into cloud event streams for real-time processing.
-- **Predictive Maintenance**: Machine learning models analyze vibration frequency and runtime hours to alert maintenance crews before component failure.
-- **Geofencing & Asset Security**: Real-time GPS tracking triggers automated immobilization and security alerts if equipment breaches designated site boundaries.`;
-    } else if (queryLower.includes('architecture') || queryLower.includes('gis') || queryLower.includes('microservice')) {
-      answerText = `### Geospatial & Cloud Architecture Principles
+*Both motorcycles are manufactured and supported across India through Husqvarna's strategic partnership with **Bajaj Auto Ltd.***`;
+    } else if (
+      queryLower.includes('gis') ||
+      queryLower.includes('global information services') ||
+      queryLower.includes('cloud') ||
+      queryLower.includes('architecture') ||
+      queryLower.includes('fargate') ||
+      queryLower.includes('ecs') ||
+      queryLower.includes('jwt') ||
+      queryLower.includes('navi mumbai')
+    ) {
+      answerText = `### Husqvarna Group GIS (Global Information Services) India, Navi Mumbai
 
-Building scalable GIS and Cloud & AI applications requires resilient, distributed engineering:
+Husqvarna Group's **Global Information Services (GIS)** division operates its premier digital and cloud engineering competence hub in **Navi Mumbai, India**:
 
-1. **Decoupled Service Mesh**: Separate telemetry ingestion, geospatial indexing (e.g. PostGIS, GeoJSON caching), and LLM reasoning pipelines.
-2. **Tokenized Authentication**: Enforce zero-trust JWT authentication at the API Gateway layer before traffic reaches internal microservices.
-3. **Resilience Engineering**: Implement circuit breakers, timeouts with cancellation signals (\`AbortController\`), and exponential backoff retry policies for external LLM endpoints.
-4. **Cloud-Native Deployment**: Containerized workloads deployed via AWS ECS Fargate with target-tracking auto-scaling across multi-AZ subnets.`;
+1. **Strategic Role**: GIS drives global IT strategy, digital engineering, and resilient cloud infrastructure across all Husqvarna Group divisions.
+2. **Cloud-Native Architecture (AWS ECS Fargate)**:
+   - Workloads are fully containerized and orchestrated serverlessly via **AWS ECS Fargate**, eliminating VM maintenance overhead.
+   - Microservices are deployed inside a dedicated multi-AZ Virtual Private Cloud (VPC) with automated Target Tracking auto-scaling.
+   - Outbound egress to external LLM providers (e.g., Google Gemini Flash) routes securely through dual NAT Gateways.
+3. **Enterprise Defense & Zero-Trust Security**:
+   - Zero-trust authentication via signed **JSON Web Tokens (JWT)** passed over \`Authorization: Bearer <token>\`.
+   - Strict runtime payload verification using **Zod** schema contracts, mitigating injection risks.
+   - Protective perimeter hardening with **Helmet** HTTP security headers and IP rate limiting (\`express-rate-limit\`).
+4. **AI & Data Engineering**: High-throughput conversational query assistant APIs combining real-time token telemetry with intelligent deterministic resilience fallbacks.`;
+    } else if (
+      queryLower.includes('heritage') ||
+      queryLower.includes('history') ||
+      queryLower.includes('swedish') ||
+      queryLower.includes('1903') ||
+      queryLower.includes('huskvarna') ||
+      queryLower.includes('silverpilen')
+    ) {
+      answerText = `### Husqvarna Motorcycles — Swedish Since 1903
+
+- **The Town of Huskvarna**: The journey began in 1903 in the picturesque Swedish town of Huskvarna. Over 120 years later, that craftsmanship has matured into a celebrated global legacy of motorcycle innovation.
+- **The Modern Classic Philosophy**: A harmony of two radical schools of thought—**Modern** and **Classic**. Husqvarna motorcycles blend iconic vintage design lines with cutting-edge electronics and dynamic performance.
+- **The Classic Silverpilen**: In 1955, Husqvarna revolutionized motorcycling with the lightweight and agile **Silverpilen** (Silver Arrow). Today's **Svartpilen** (Black Arrow) and **Vitpilen** (White Arrow) proudly advance that pioneering DNA into the modern era.`;
+    } else if (
+      queryLower.includes('book') ||
+      queryLower.includes('showroom') ||
+      queryLower.includes('e-showroom') ||
+      queryLower.includes('test ride') ||
+      queryLower.includes('bajaj') ||
+      queryLower.includes('enquiry')
+    ) {
+      answerText = `### Husqvarna Motorcycles India: Bookings, Showroom & Dealer Network
+
+- **3D e-Showroom**: Explore both Svartpilen 401 and Vitpilen 250 in complete 360-degree high-definition 3D at \`husqvarnamotorcyclesindia.com/husqvarna-eshowroom\`.
+- **Online Booking**: Reserve your motorcycle directly online via the official portal (\`/buy-now\`).
+- **Test Rides & Enquiries**: Available across authorized KTM / Husqvarna dealership showrooms in all major Indian cities.
+- **Manufacturing & Support**: Made in India at Bajaj Auto's advanced Chakan / Akurdi facility in Pune, Maharashtra, ensuring comprehensive parts availability and factory service standards.`;
     } else {
-      answerText = `### AI Assistant Response
+      answerText = `### Husqvarna Motorcycles & GIS Assistant
 
-Thank you for your query: **"${options.query}"**
+Welcome! I am the specialized AI Assistant for **Husqvarna Motorcycles India** and **Husqvarna Group GIS (Global Information Services) India, Navi Mumbai**.
 
-#### Analysis & Insights:
-- **Query Processing**: Processed successfully via the Husqvarna AI Assistant service.
-- **Provider Status**: Running in high-reliability mode with structured JSON validation and JWT security enforcement.
-- **Contextual Understanding**: Your request has been parsed, validated against strict input constraints (max 2000 chars), and executed with sub-second latency.
+#### What you can ask me:
+1. **Motorcycles Lineup**: Details and specifications on **Svartpilen 401** ("Escape The Ordinary") and **Vitpilen 250** ("Disrupt The Ordinary").
+2. **Brand Heritage**: Swedish origins since 1903, the town of Huskvarna, and the legendary 1955 Silverpilen.
+3. **GIS India Cloud & AI Architecture**: AWS ECS Fargate serverless infrastructure, JWT authentication, and resilient API microservices.
+4. **Customer Services**: 3D e-Showroom, Bajaj Auto partnership, bookings, and test rides in India.
 
-*Note: To connect to live Google Gemini Flash API, supply a valid \`GEMINI_API_KEY\` in your \`.env\` file.*`;
+*Note: Unrelated questions outside this scope are automatically restricted to preserve high domain fidelity.*`;
     }
 
     const promptTokens = Math.ceil(options.query.length / 4);

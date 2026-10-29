@@ -84,10 +84,10 @@ export const ResponseDisplay: React.FC<ResponseDisplayProps> = ({
         <div className="empty-state-badge">
           <Bot size={36} className="text-accent" />
         </div>
-        <h2 className="empty-state-title">Ready for Technical Inquiries</h2>
+        <h2 className="empty-state-title">Husqvarna AI Assistant</h2>
         <p className="empty-state-text">
-          Ask questions about Husqvarna Automower EPOS navigation, Fleet Services IoT telemetry,
-          or GIS microservices architecture. Your chat history is preserved locally.
+          Explore Husqvarna Motorcycles India (Svartpilen 401 & Vitpilen 250), Swedish heritage since 1903,
+          and Husqvarna Group GIS India Cloud & AI engineering architecture.
         </p>
 
         {/* 2 Quick Inquiries Highlight Cards */}

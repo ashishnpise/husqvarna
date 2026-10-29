@@ -42,7 +42,7 @@ const envSchema = z.object({
     .min(16, 'JWT_SECRET must be at least 16 characters for security')
     .default('husqvarna-gis-eval-jwt-secret-key-2026-secure'),
   GEMINI_API_KEY: z.string().optional(),
-  GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
+  GEMINI_MODEL: z.string().default('gemini-3.5-flash'),
   LLM_PROVIDER: z.enum(['gemini', 'mock']).default('gemini'),
   LLM_TIMEOUT_MS: z
     .string()

@@ -61,8 +61,11 @@ export const chatStorage = {
 };
 
 
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
 export class ApiService {
   private static async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
     const headers = new Headers(options.headers || {});
     if (!headers.has('Content-Type')) {
       headers.set('Content-Type', 'application/json');
@@ -76,7 +79,7 @@ export class ApiService {
 
     let response: Response;
     try {
-      response = await fetch(endpoint, {
+      response = await fetch(url, {
         ...options,
         headers,
       });
@@ -105,7 +108,7 @@ export class ApiService {
   }
 
   public static async getHealth(): Promise<HealthStatus> {
-    const response = await fetch('/api/health');
+    const response = await fetch(`${API_BASE_URL}/api/health`);
     if (!response.ok) {
       throw new Error(`Health check failed with status ${response.status}`);
     }

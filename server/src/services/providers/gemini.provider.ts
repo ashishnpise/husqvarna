@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { env } from '../../config/env.js';
+import { HUSQVARNA_SYSTEM_PROMPT } from '../../config/husqvarna-knowledge.js';
 import { AppError } from '../../middleware/error.middleware.js';
 import { ILLMProvider, LLMRequestOptions, LLMResponseData } from './provider.interface.js';
 
@@ -26,13 +27,14 @@ export class GeminiProvider implements ILLMProvider {
       );
     }
 
-    const modelName = options.model || env.GEMINI_MODEL || 'gemini-2.5-flash';
+    const modelName = options.model || env.GEMINI_MODEL || 'gemini-3.5-flash';
 
     try {
       const generativeModel = this.client.getGenerativeModel({
         model: modelName,
+        systemInstruction: HUSQVARNA_SYSTEM_PROMPT,
         generationConfig: {
-          temperature: options.temperature ?? 0.7,
+          temperature: options.temperature ?? 0.3,
         },
       });
 
