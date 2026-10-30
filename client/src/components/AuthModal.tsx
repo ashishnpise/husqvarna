@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Key, ShieldCheck, ShieldAlert, Trash2, RefreshCw, Check } from 'lucide-react';
+import { X, Key, ShieldCheck, ShieldAlert, Trash2, RefreshCw, Check, Copy } from 'lucide-react';
 import { ApiService, tokenStorage } from '../services/api.ts';
+import { copyToClipboard } from '../utils/clipboard.ts';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -13,12 +14,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onTokenCh
   const [customInput, setCustomInput] = useState<string>('');
   const [isMinting, setIsMinting] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [tokenCopied, setTokenCopied] = useState<boolean>(false);
 
   if (!isOpen) return null;
 
   const showFeedback = (msg: string) => {
     setFeedback(msg);
     setTimeout(() => setFeedback(null), 3000);
+  };
+
+  const handleCopyToken = async () => {
+    if (!currentToken) return;
+    const success = await copyToClipboard(currentToken);
+    if (success) {
+      setTokenCopied(true);
+      setTimeout(() => setTokenCopied(false), 2000);
+      showFeedback('Copied active JWT token to clipboard');
+    }
   };
 
   const handleMintValid = async () => {
@@ -108,7 +120,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onTokenCh
               </span>
             </div>
             {currentToken ? (
-              <pre className="token-preview font-mono">{currentToken}</pre>
+              <div className="token-preview-wrapper">
+                <pre className="token-preview font-mono">{currentToken}</pre>
+                <button
+                  type="button"
+                  id="btn-copy-token"
+                  className={`btn-token-copy ${tokenCopied ? 'copied' : ''}`}
+                  onClick={handleCopyToken}
+                  title="Copy token to clipboard"
+                  aria-label="Copy JWT token"
+                >
+                  {tokenCopied ? <Check size={12} className="text-accent" /> : <Copy size={12} />}
+                  <span>{tokenCopied ? 'Copied' : 'Copy'}</span>
+                </button>
+              </div>
             ) : (
               <p className="text-muted text-sm">No token configured in localStorage.</p>
             )}

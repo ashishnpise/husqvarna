@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Copy, Check, Clock, Hash, Cpu, Bot, User, Sparkles } from 'lucide-react';
+import { Copy, Check, Clock, Hash, Cpu, Bot, User, Sparkles, AlertCircle } from 'lucide-react';
 import { ChatMessage } from '../types/index.ts';
 import { SAMPLE_PROMPTS } from './QueryInput.tsx';
+import { copyToClipboard } from '../utils/clipboard.ts';
 
 interface ResponseDisplayProps {
   messages: ChatMessage[];
@@ -15,20 +16,38 @@ export const ResponseDisplay: React.FC<ResponseDisplayProps> = ({
   onSampleClick,
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copyFailedId, setCopyFailedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Auto-scroll to bottom when messages change or loading begins
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
+  // Clean up any pending timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleCopy = async (id: string, text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
+    if (copyTimeoutRef.current) {
+      clearTimeout(copyTimeoutRef.current);
+    }
+
+    const success = await copyToClipboard(text);
+    if (success) {
       setCopiedId(id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch {
-      console.warn('Failed to copy to clipboard.');
+      setCopyFailedId(null);
+      copyTimeoutRef.current = setTimeout(() => setCopiedId(null), 2000);
+    } else {
+      setCopyFailedId(id);
+      setCopiedId(null);
+      copyTimeoutRef.current = setTimeout(() => setCopyFailedId(null), 2500);
     }
   };
 
@@ -168,15 +187,21 @@ export const ResponseDisplay: React.FC<ResponseDisplayProps> = ({
 
                 <button
                   type="button"
+                  id={`btn-copy-${msg.id}`}
                   onClick={() => handleCopy(msg.id, msg.content)}
-                  className="copy-btn"
-                  title="Copy response to clipboard"
+                  className={`copy-btn ${copiedId === msg.id ? 'copied' : ''} ${copyFailedId === msg.id ? 'copy-failed' : ''}`}
+                  title={copiedId === msg.id ? 'Copied to clipboard!' : copyFailedId === msg.id ? 'Failed to copy to clipboard' : 'Copy response to clipboard'}
                   aria-label="Copy response text"
                 >
                   {copiedId === msg.id ? (
                     <>
                       <Check size={13} className="text-accent" />
                       <span>Copied!</span>
+                    </>
+                  ) : copyFailedId === msg.id ? (
+                    <>
+                      <AlertCircle size={13} className="text-danger" />
+                      <span>Copy Failed</span>
                     </>
                   ) : (
                     <>
