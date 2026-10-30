@@ -13,7 +13,7 @@ const server = app.listen(env.PORT, '0.0.0.0', () => {
   ==============================================================
     🚀 Status:   Running in ${env.NODE_ENV.toUpperCase()} mode
     🌐 Port:     http://localhost:${env.PORT}
-    🤖 Provider: ${providerInfo.provider} (${providerInfo.isRealApiKeyConfigured ? 'Live API Key Loaded' : 'Fallback Mock Mode'})
+    🤖 Provider: ${providerInfo.provider} (${providerInfo.isRealApiKeyConfigured ? 'API Key Loaded' : 'API Key Missing'})
     🧠 Model:    ${providerInfo.model}
     🔒 Auth:     JWT Bearer Protected
   ==============================================================

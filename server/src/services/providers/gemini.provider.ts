@@ -21,7 +21,7 @@ export class GeminiProvider implements ILLMProvider {
   public async generateResponse(options: LLMRequestOptions): Promise<LLMResponseData> {
     if (!this.client) {
       throw new AppError(
-        'Gemini API key is not configured. Please supply GEMINI_API_KEY in .env or switch to mock provider.',
+        'Gemini API key is not configured. Please supply GEMINI_API_KEY in config/.env.app.',
         502,
         'PROVIDER_NOT_CONFIGURED'
       );

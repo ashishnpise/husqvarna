@@ -2,45 +2,29 @@ import { performance } from 'perf_hooks';
 import { env } from '../config/env.js';
 import { QueryRequestDto, QueryResponseData } from '../schemas/query.schema.js';
 import { GeminiProvider } from './providers/gemini.provider.js';
-import { MockProvider } from './providers/mock.provider.js';
 import { ILLMProvider } from './providers/provider.interface.js';
 
 export class LlmService {
   private geminiProvider: GeminiProvider;
-  private mockProvider: MockProvider;
 
   constructor() {
     this.geminiProvider = new GeminiProvider();
-    this.mockProvider = new MockProvider();
   }
 
   public getActiveProvider(): ILLMProvider {
-    if (env.LLM_PROVIDER === 'mock') {
-      return this.mockProvider;
-    }
-
-    if (this.geminiProvider.isAvailable()) {
-      return this.geminiProvider;
-    }
-
-    console.warn(
-      '⚠️ [LlmService] GEMINI_API_KEY is not configured in .env. Falling back to MockProvider for resilience.'
-    );
-    return this.mockProvider;
+    return this.geminiProvider;
   }
 
   public getProviderStatus(): { provider: string; model: string; isRealApiKeyConfigured: boolean } {
-    const isConfigured = this.geminiProvider.isAvailable();
-    const active = this.getActiveProvider();
     return {
-      provider: active.name,
+      provider: 'gemini',
       model: env.GEMINI_MODEL,
-      isRealApiKeyConfigured: isConfigured,
+      isRealApiKeyConfigured: this.geminiProvider.isAvailable(),
     };
   }
 
   public async executeQuery(dto: QueryRequestDto): Promise<QueryResponseData> {
-    const provider = this.getActiveProvider();
+    const provider = this.geminiProvider;
     const abortController = new AbortController();
     const timeoutId = setTimeout(() => {
       abortController.abort();
@@ -75,3 +59,4 @@ export class LlmService {
 }
 
 export const llmService = new LlmService();
+

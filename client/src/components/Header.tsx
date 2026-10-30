@@ -56,19 +56,12 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Model & Provider Badge */}
         <div className="status-pill model-pill">
-          {health?.realApiKeyConfigured ? (
-            <>
-              <Sparkles size={14} className="text-accent" />
-              <span className="status-label">Model:</span>
-              <span className="status-value font-mono">{health.model}</span>
-            </>
-          ) : (
-            <>
-              <Cpu size={14} className="text-warning" />
-              <span className="status-label">Provider:</span>
-              <span className="status-value">{health?.provider === 'gemini' ? 'Gemini (Mock fallback)' : 'Mock Demo'}</span>
-            </>
-          )}
+          <Sparkles size={14} className={health?.realApiKeyConfigured ? 'text-accent' : 'text-warning'} />
+          <span className="status-label">Model:</span>
+          <span className="status-value font-mono">
+            {health?.model || 'gemini-3.5-flash'}
+            {!health?.realApiKeyConfigured && ' (Key Required)'}
+          </span>
         </div>
 
         {/* New Chat Button */}
