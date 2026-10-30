@@ -86,7 +86,7 @@ export const ResponseDisplay: React.FC<ResponseDisplayProps> = ({
         </div>
         <h2 className="empty-state-title">Husqvarna AI Assistant</h2>
         <p className="empty-state-text">
-          Explore Husqvarna Motorcycles India (Svartpilen 401 & Vitpilen 250), Swedish heritage since 1903,
+          Explore Husqvarna India Forest & Garden products (chainsaws, power weeders, Automower® & CEORA™), Swedish innovation since 1689,
           and Husqvarna Group GIS India Cloud & AI engineering architecture.
         </p>
 

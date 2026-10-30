@@ -1,6 +1,6 @@
 # Husqvarna AI Query Assistant
 
-A full-stack, enterprise-grade AI Query Assistant engineered to explore and query **Husqvarna Motorcycles India** models (Svartpilen 401, Vitpilen 250), company heritage, technical specifications, and dealership operations.
+A full-stack, enterprise-grade AI Query Assistant engineered to explore and query **Husqvarna India Forest & Garden** products (chainsaws, power weeders, Automower®, CEORA™ autonomous turf care), Swedish innovation heritage since 1689, technical specifications, and Husqvarna Group GIS India cloud architecture.
 
 The application is built with a decoupled architecture featuring a **React 18 + TypeScript + Vite** frontend and a **Node.js 22 + Express + TypeScript** backend powered exclusively by **Google Gemini Flash**.
 
@@ -264,7 +264,7 @@ All API endpoints follow standardized JSON envelopes for responses and errors.
 - **Request Body (Zod Validated)**:
   ```json
   {
-    "query": "What is the difference between Svartpilen 401 and Vitpilen 250?",
+    "query": "What are the primary features of Husqvarna professional chainsaws and power weeders in India?",
     "model": "gemini-3.5-flash",
     "temperature": 0.3
   }
@@ -280,8 +280,8 @@ All API endpoints follow standardized JSON envelopes for responses and errors.
   {
     "success": true,
     "data": {
-      "query": "What is the difference between Svartpilen 401 and Vitpilen 250?",
-      "response": "### Husqvarna Motorcycles India: Svartpilen 401 vs. Vitpilen 250\n\n...",
+      "query": "What are the primary features of Husqvarna professional chainsaws and power weeders in India?",
+      "response": "### Husqvarna India: Professional Chainsaws & Agricultural Power Weeders\n\n...",
       "model": "gemini-3.5-flash",
       "provider": "gemini",
       "usage": {
@@ -309,10 +309,10 @@ All API endpoints follow standardized JSON envelopes for responses and errors.
 
 The backend directly orchestrates live inferences with **Google Gemini Flash**:
 
-- **Google Generative AI SDK**: Integrates `@google/generative-ai` configured with the official Husqvarna Motorcycles India knowledge base and system prompt.
+- **Google Generative AI SDK**: Integrates `@google/generative-ai` configured with the authoritative Husqvarna India Forest & Garden knowledge base (https://www.husqvarna.com/in/) and system prompt.
 - **Model Support**: Defaults to `gemini-3.5-flash` (configurable via `GEMINI_MODEL`).
 - **Resilience & Timeout Safety**: Configured with an `AbortSignal` enforcing `LLM_TIMEOUT_MS` to prevent hanging upstream connections.
-- **Strict Domain Guardrails**: Specialized system prompt that rejects off-topic inquiries outside the Husqvarna Motorcycles and Husqvarna Group GIS scope.
+- **Strict Domain Guardrails**: Specialized system prompt that rejects off-topic inquiries outside the Husqvarna Forest & Garden and Husqvarna Group GIS scope.
 
 ---
 

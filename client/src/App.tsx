@@ -22,17 +22,14 @@ export const App: React.FC = () => {
     details?: unknown;
   } | null>(null);
 
-  // Sync token state
   const syncTokenState = useCallback(() => {
     const token = tokenStorage.get();
     setHasToken(Boolean(token && token.trim().length > 0));
   }, []);
 
-  // Initialize application
   useEffect(() => {
     syncTokenState();
 
-    // Ensure a default test token exists on first load for zero-friction evaluation
     if (!tokenStorage.get()) {
       ApiService.mintToken(false)
         .then((res) => {
@@ -103,7 +100,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Start a new chat (archives the current session locally as single chat history)
   const handleNewChat = () => {
     if (messages.length > 0) {
       chatStorage.archiveCurrent();
@@ -113,7 +109,6 @@ export const App: React.FC = () => {
     setError(null);
   };
 
-  // Restore the single previous chat session
   const handleRestorePrevious = () => {
     const prev = chatStorage.getPrevious();
     if (prev && prev.length > 0) {
@@ -144,7 +139,6 @@ export const App: React.FC = () => {
       />
 
       <main className="main-content chat-main-layout">
-        {/* Scrollable Conversation Stream */}
         <section className="chat-scroll-area">
           <ResponseDisplay
             messages={messages}
@@ -153,7 +147,6 @@ export const App: React.FC = () => {
           />
         </section>
 
-        {/* Docked Sticky Chat Bar */}
         <footer className="chat-docked-bottom">
           <QueryInput
             onSubmit={handleQuerySubmit}

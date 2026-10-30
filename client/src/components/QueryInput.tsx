@@ -7,7 +7,7 @@ interface QueryInputProps {
 }
 
 export const SAMPLE_PROMPTS = [
-  'Compare Husqvarna Svartpilen 401 and Vitpilen 250 features',
+  'What are the key features and models of Husqvarna chainsaws and power weeders in India?',
   'How does Husqvarna Group GIS India architect its AWS ECS cloud services?',
 ];
 
@@ -102,7 +102,7 @@ export const QueryInput: React.FC<QueryInputProps> = ({ onSubmit, isLoading }) =
             value={query}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about Husqvarna Svartpilen 401, Vitpilen 250, Swedish heritage, or GIS cloud architecture..."
+            placeholder="Ask about Husqvarna chainsaws, robotic mowers, power weeders, Swedish heritage since 1689, or GIS cloud architecture..."
             rows={2}
             disabled={isLoading}
             className={`query-textarea ${isTooLong ? 'input-error' : ''}`}
