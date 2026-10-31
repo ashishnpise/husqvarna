@@ -40,7 +40,7 @@
         },
         {
           "name": "LLM_TIMEOUT_MS",
-          "value": "45000"
+          "value": "15000"
         }
       ],
       "secrets": [

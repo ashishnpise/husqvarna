@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, ShieldAlert, Cpu, Sparkles, Activity, Plus, RotateCcw } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Sparkles, Activity, Plus, RotateCcw } from 'lucide-react';
 import { HealthStatus } from '../types/index.ts';
 
 interface HeaderProps {

@@ -48,7 +48,7 @@ The application is deployed as a decoupled, resilient, and containerized micro-a
         { "name": "PORT", "value": "5001" },
         { "name": "GEMINI_MODEL", "value": "gemini-3.5-flash" },
         { "name": "LLM_PROVIDER", "value": "gemini" },
-        { "name": "LLM_TIMEOUT_MS", "value": "45000" }
+        { "name": "LLM_TIMEOUT_MS", "value": "15000" }
       ],
       "secrets": [
         {
